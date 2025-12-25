@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>テニス体幹5分</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 24px;
+      background: #f6f7f9;
+    }
+    h1 {
+      font-size: 24px;
+    }
+    #exercise {
+      font-size: 26px;
+      margin-top: 20px;
+    }
+    #description {
+      font-size: 16px;
+      color: #555;
+      margin: 12px 0 20px;
+    }
+    #timer {
+      font-size: 48px;
+      font-weight: bold;
+    }
+    button {
+      font-size: 18px;
+      padding: 12px 20px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+
+<h1>🎾 テニス体幹5分</h1>
+
+
+<div id="exercise">準備OK？</div>
+<div id="description">スタートを押してください</div>
+<div id="timer">00</div>
+
+
+<button id="toggleBtn" onclick="togglePause()">▶ スタート</button>
+<button onclick="stopWorkout()">⏹ ストップ</button>
+
+
+<script>
+const workout = [
+  { name: "プランク", time: 30, desc: "肘は肩の下。頭からかかとまで一直線。" },
+  { name: "休憩", time: 10, desc: "呼吸を整えましょう。" },
+  { name: "サイドプランク（右）", time: 20, desc: "体を一直線に保つ。" },
+  { name: "休憩", time: 10, desc: "リラックス。" },
+  { name: "サイドプランク（左）", time: 20, desc: "腰が落ちないように。" },
+  { name: "休憩", time: 10, desc: "次が来ます。" },
+  { name: "デッドバグ", time: 30, desc: "腰は床につけたまま。" },
+  { name: "休憩", time: 10, desc: "ラスト！" },
+  { name: "ヒップリフト", time: 30, desc: "お尻を締めて持ち上げる。" }
+];
+
+
+let index = 0;
+let remaining = 0;
+let interval = null;
+let isRunning = false;
+let isPaused = false;
+
+
+function speak(text) {
+  const uttr = new SpeechSynthesisUtterance(text);
+  uttr.lang = "ja-JP";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(uttr);
+}
+
+
+function togglePause() {
+  const btn = document.getElementById("toggleBtn");
+
+
+  // 初回スタート
+  if (!isRunning) {
+    isRunning = true;
+    isPaused = false;
+    btn.textContent = "⏸ 一時停止";
+    index = 0;
+    startCurrent();
+    return;
+  }
+
+
+  // 一時停止
+  if (!isPaused) {
+    clearInterval(interval);
+    interval = null;
+    speechSynthesis.cancel();
+    isPaused = true;
+    btn.textContent = "▶ 再開";
+    document.getElementById("description").textContent = "一時停止中";
+    return;
+  }
+
+
+  // 再開
+  isPaused = false;
+  btn.textContent = "⏸ 一時停止";
+  startInterval();
+}
+
+
+function startCurrent() {
+  const item = workout[index];
+  remaining = item.time;
+
+
+  document.getElementById("exercise").textContent = item.name;
+  document.getElementById("description").textContent = item.desc;
+  document.getElementById("timer").textContent = remaining;
+
+
+  speak(`${item.name}、${remaining}秒スタート`);
+  startInterval();
+}
+
+
+function startInterval() {
+  interval = setInterval(() => {
+    remaining--;
+    document.getElementById("timer").textContent = remaining;
+
+
+    if (remaining === 5) {
+      speak("残り5秒");
+    }
+
+
+    if (remaining <= 0) {
+      clearInterval(interval);
+      index++;
+      if (index >= workout.length) {
+        finishWorkout();
+      } else {
+        startCurrent();
+      }
+    }
+  }, 1000);
+}
+
+
+function stopWorkout() {
+  clearInterval(interval);
+  interval = null;
+  speechSynthesis.cancel();
+
+
+  isRunning = false;
+  isPaused = false;
+  index = 0;
+
+
+  document.getElementById("exercise").textContent = "中断しました";
+  document.getElementById("description").textContent = "スタートで最初から";
+  document.getElementById("timer").textContent = "⏹";
+  document.getElementById("toggleBtn").textContent = "▶ スタート";
+}
+
+
+function finishWorkout() {
+  isRunning = false;
+  isPaused = false;
+  document.getElementById("exercise").textContent = "終了！";
+  document.getElementById("description").textContent = "お疲れさまでした";
+  document.getElementById("timer").textContent = "🎉";
+  document.getElementById("toggleBtn").textContent = "▶ スタート";
+  speak("お疲れさまでした。トレーニング終了です。");
+}
+</script>
+
+
+</body>
+</html>
