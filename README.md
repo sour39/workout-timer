@@ -13,6 +13,10 @@ https://sour39.github.io/workout-timer/
 ※ ブラウザでそのまま使えます  
 ※ Android Chrome で動作確認済み
 
+## 📸 スクリーンショット
+
+![Workout Timer Screenshot](screenshot.png)
+
 ---
 
 ## ✨ 特徴
